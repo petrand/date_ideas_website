@@ -1,4 +1,5 @@
-const express = require('express')
+const express = require('express');
+const { json } = require('express/lib/response');
 
 
 const app = express()
@@ -11,6 +12,30 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri =  "mongodb+srv://admin:passwordpassword@dateideasdb.pvicx.mongodb.net/dateIdeas?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
 
+
+// CATEGORIES 
+
+async function get_category_list(){
+  try{
+    await client.connect();
+
+    const database = client.db("dateIdeas");
+    const categories = await database.collection("categories").find().toArray();
+    //console.log(categories);
+    return categories
+
+  } finally {
+    await client.close();
+  }
+
+}
+
+
+
+// DATE IDEAS 
+
+// Create new date idea
+
 async function create_date_idea(idea_obj){
   try{
     await client.connect();
@@ -19,12 +44,13 @@ async function create_date_idea(idea_obj){
     const ideas = database.collection("ideas");
 
     const result = await ideas.insertOne(idea_obj);
-
-    console.log("An idea was inserted")
+    return ("Date idea was incserted successfully")
   } finally {
     await client.close();
   }
 }
+
+// get a random date idea
 
 async function get_date_idea(category_id){
   try{
@@ -51,14 +77,33 @@ async function get_date_idea(category_id){
 
 
 
+//  HTTP REQUESTS
 
 
+// CATEGORIES
+app.get('/get_category_list', (req, res) => {
+  
+  (async () => {
+    var result = await get_category_list();
+    var json_list = JSON.stringify({category_list: result});
+    res.send(json_list)
+    })()
+
+})
+
+
+// IDEAS
 app.post('/add_idea', (req, res) => {
 
-  console.dir(req.body);
-  var idea_obj = req.body;
-  create_date_idea(idea_obj);
-  res.send('Hello World!');
+  (async () => {
+    var idea_obj = req.body;
+    var result = await create_date_idea(idea_obj);
+    res.send(result);
+    })()
+  //console.dir(req.body);
+  //var idea_obj = req.body;
+  //create_date_idea(idea_obj);
+  //res.send('');
 })
 
 app.get('/get_idea', (req, res) => {
