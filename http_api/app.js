@@ -42,9 +42,21 @@ async function create_date_idea(idea_obj){
 
     const database = client.db("dateIdeas");
     const ideas = database.collection("ideas");
+    const aggCursor = await ideas.aggregate([
+      { $match:  { 
+            //category_id: idea_obj['category_id'], //new ObjectId( ) ,
+            idea: idea_obj['idea']}
+        }
+    ]);
+    const arr = await aggCursor.toArray();
+    const length = await arr.length;
 
-    const result = await ideas.insertOne(idea_obj);
-    return ("Date idea was incserted successfully")
+    if(length == 0){
+      const result = await ideas.insertOne(idea_obj);
+      return ("Date idea was incserted successfully")
+    }else{
+      return ("This idea is already in the database")
+    }
   } finally {
     await client.close();
   }
@@ -55,20 +67,20 @@ async function create_date_idea(idea_obj){
 async function get_date_idea(category_id){
   try{
     await client.connect();
-
+    console.dir(category_id['category_id']);
     const database = client.db("dateIdeas");
     const ideas = database.collection("ideas");
 
     const aggCursor = await ideas.aggregate([
         { $match:  { 
-            category_id: new ObjectId("62652c61fc41248e6e47fbcb")}
-        },  
-        { $sample: { size: 1}}
+              category_id: category_id['category_id']} //new ObjectId( ) 
+          },  
+        { $sample: { size: 3}}
     ]);
 
     const idea_returned = await aggCursor.toArray();
 
-    console.log(idea_returned[0]);
+    //console.log(idea_returned[0]);
     return idea_returned[0];
   } finally {
     await client.close();
@@ -100,17 +112,16 @@ app.post('/add_idea', (req, res) => {
     var result = await create_date_idea(idea_obj);
     res.send(result);
     })()
-  //console.dir(req.body);
-  //var idea_obj = req.body;
-  //create_date_idea(idea_obj);
-  //res.send('');
 })
 
 app.get('/get_idea', (req, res) => {
-  var category_id = req.body;
-  var result = get_date_idea(category_id);
-  console.dir(result)
-  res.send(result);
+  (async () => {
+    var category_id = req.body;
+    //console.log(req.body)
+    var result = await get_date_idea(category_id);
+    ///console.dir(result)
+    res.send(result);
+  })()
 })
 
 app.listen(port, () => {
