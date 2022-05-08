@@ -11,17 +11,15 @@ services:
     ports:
       - "80:80"
     volumes:
-      - type: bind
-        source: ./reverse_proxy/nginx.conf
-        target: /etc/nginx/nginx.conf
+        - ./reverse_proxy/nginx.conf:/etc/nginx/conf.d/default.conf
     networks:
       - nginx-network
 
   streamlit-app:
     image: continuumio/miniconda3
-    container_name: streamlit_app
+    container_name: streamlit-app
     command: bash -c "pip install streamlit 
-                      && streamlit run app/streamlit_app.py  --server.port 8080" # --server.address=localhost
+                      && streamlit run app/streamlit_app.py --server.port 8080" # --server.address=localhost
     ports: 
       - "8080:8080"
     volumes: 
@@ -34,7 +32,7 @@ services:
   
   dateideas-api:
     image: node:slim
-    container_name: dateideas_api
+    container_name: dateideas-api
     command: bash -c "node app/app.js"
     ports:
       - "3000:3000" ## remove in the future
