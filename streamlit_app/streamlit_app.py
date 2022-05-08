@@ -11,7 +11,7 @@ def decode_json(content):
     return json.loads(content.decode("utf-8"))
 
 def get_categories():
-    r = requests.get('http://172.20.192.1:3000/get_category_list')
+    r = requests.get('http://localhost:3000/get_category_list')
     print(type(r.content))
     category_names = [category["category_name"] for category in decode_json(r.content)['category_list']]
     category_description =  {category["category_name"]: category["category_description"] for category in decode_json(r.content)['category_list']}
@@ -21,7 +21,7 @@ def get_categories():
 def get_idea(category, category_ids):
     id = category_ids[category]
     pload = {"category_id":id}
-    r = requests.get('http://172.20.192.1:3000/get_idea', json=pload)
+    r = requests.get('http://localhost:3000/api/get_idea', json=pload)
     idea = decode_json(r.content)['idea']
     idea = idea[0].capitalize() + idea[1:len(idea)]
     return idea
@@ -33,7 +33,7 @@ def post_idea(category, category_ids, idea):
     idea_string = ' '.join(clean_words)
     idea_string = idea_string.strip()
     pload = {'category_id':id, 'idea':idea_string}
-    r = requests.post('http://172.20.192.1:3000/add_idea', json=pload)
+    r = requests.post('http://localhost:3000/add_idea', json=pload)
     return r
 
 st.title("💟 Date Idea Generator")

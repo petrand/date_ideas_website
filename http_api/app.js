@@ -1,7 +1,6 @@
 const express = require('express');
 const { json } = require('express/lib/response');
-
-
+require('dotenv').config();
 const app = express()
 app.use(express.json()) 
 const port = 3000
@@ -9,7 +8,7 @@ const port = 3000
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const uri =  "mongodb+srv://admin:passwordpassword@dateideasdb.pvicx.mongodb.net/dateIdeas?retryWrites=true&w=majority";
+const uri =  process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
 

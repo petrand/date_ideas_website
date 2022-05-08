@@ -4,3 +4,4 @@
 **.DS_Store**
 *.zip
 http_api/node_modules/**
+**.env**

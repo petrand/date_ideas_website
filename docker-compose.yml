@@ -14,33 +14,37 @@ services:
       - type: bind
         source: ./reverse_proxy/nginx.conf
         target: /etc/nginx/nginx.conf
-    
+    networks:
+      - nginx-network
+
   streamlit-app:
     image: continuumio/miniconda3
     container_name: streamlit_app
     command: bash -c "pip install streamlit 
-                      && streamlit run app/streamlit_app.py --server.port 8080"
+                      && streamlit run app/streamlit_app.py  --server.address=127.0.0.1 --server.port 8080"
     ports: 
-      - "8080:80"
+      - "8080:8080"
     volumes: 
      - type: bind
        source: ./streamlit_app
        target: /app
-
+    networks:
+      - nginx-network
+    restart: on-failure
   
   dateideas-api:
     image: node:slim
     container_name: dateideas_api
     command: bash -c "node app/app.js"
     ports:
-      - "3000:3000"
+      - "3000:3000" ## remove in the future
     volumes: 
      - type: bind
        source: ./http_api
        target: /app
-
+    networks:
+      - nginx-network
+    restart: on-failure
 networks:
-  ingress-network:
-    driver: bridge
-  internal-network:
+  nginx-network:
     driver: bridge
