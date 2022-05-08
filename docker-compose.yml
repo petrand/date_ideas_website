@@ -34,9 +34,6 @@ services:
   
   dateideas-api:
     image: node:slim
-    build: 
-      context: ./http_api
-      dockerfile: ../http_api.Dockerfile
     container_name: dateideas_api
     command: bash -c "node app/app.js"
     ports:
