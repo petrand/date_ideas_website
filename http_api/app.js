@@ -1,7 +1,8 @@
 const express = require('express');
 const { json } = require('express/lib/response');
-require('dotenv').config();
+require('dotenv/config');
 const app = express()
+console.log(process.env.MONGO_URI)
 app.use(express.json()) 
 const port = 3000
 
