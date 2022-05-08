@@ -49,7 +49,7 @@ services:
       - nginx-network
     restart: on-failure
     env_file:
-      - ./http_api/.env
+      - ./http_api/http_app.env
 networks:
   nginx-network:
     driver: bridge
