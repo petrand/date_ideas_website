@@ -5,13 +5,13 @@ import requests
 import json
 import time
 import re
-
+from os import environ as env
 
 def decode_json(content):
     return json.loads(content.decode("utf-8"))
 
 def get_categories():
-    r = requests.get('http://157.245.154.156:3000/get_category_list')
+    r = requests.get(f'{env["REST_API"]}/get_category_list')
     print(type(r.content))
     category_names = [category["category_name"] for category in decode_json(r.content)['category_list']]
     category_description =  {category["category_name"]: category["category_description"] for category in decode_json(r.content)['category_list']}
@@ -21,7 +21,7 @@ def get_categories():
 def get_idea(category, category_ids):
     id = category_ids[category]
     pload = {"category_id":id}
-    r = requests.get('http://157.245.154.156:3000/get_idea', json=pload)
+    r = requests.get(f'{env["REST_API"]}/get_idea', json=pload)
     idea = decode_json(r.content)['idea']
     idea = idea[0].capitalize() + idea[1:len(idea)]
     return idea
@@ -33,7 +33,7 @@ def post_idea(category, category_ids, idea):
     idea_string = ' '.join(clean_words)
     idea_string = idea_string.strip()
     pload = {'category_id':id, 'idea':idea_string}
-    r = requests.post('http://157.245.154.156:3000/add_idea', json=pload)
+    r = requests.post(f'{env["REST_API"]}/add_idea', json=pload)
     return r
 
 st.title("💟 Date Idea Generator")
@@ -46,26 +46,32 @@ with col2:
 
 with col1:
     if create_idea == "Get Idea":
-        st.subheader("💕 Get a Date Idea")
-        category_names, category_description, category_ids = get_categories()
-        category = st.selectbox('Select preferred category:', category_names)
-        st.write("✨ " + category_description[category] + " ✨")
+        try:
+            st.subheader("💕 Get a Date Idea")
+            category_names, category_description, category_ids = get_categories()
+            category = st.selectbox('Select preferred category:', category_names)
+            st.write("✨ " + category_description[category] + " ✨")
 
-        if st.button('🌸 Generate Idea 🌸'):
-            st.header('💌 Your date idea is: ')
-            st.markdown(f"<h3 style='text-align: center; color: pink;'>{get_idea(category, category_ids)}</h1>", unsafe_allow_html=True)
+            if st.button('🌸 Generate Idea 🌸'):
+                st.header('💌 Your date idea is: ')
+                st.markdown(f"<h3 style='text-align: center; color: pink;'>{get_idea(category, category_ids)}</h1>", unsafe_allow_html=True)
+        except:
+            st.write("Sorry something went wrong 😔")
     else:
-        st.subheader("🎠 Add a New Date Idea")
-        category_names, category_description, category_ids = get_categories()
-        category = st.selectbox('Select category to add to:', category_names)
-        new_idea = st.text_input('Your new idea!', '', max_chars =250)
-        st.write("Your new date idea is: "+new_idea)
-        if st.button('🌺 Submit Idea 🌺'):
-            response = post_idea(category, category_ids, new_idea)
-            if response.status_code == 200:
-                if response.content.decode("utf-8") == 'This idea is already in the database':
-                    st.write("Sorry this idea is already in the database. Anything else on your mind? 🤔")
+        try: 
+            st.subheader("🎠 Add a New Date Idea")
+            category_names, category_description, category_ids = get_categories()
+            category = st.selectbox('Select category to add to:', category_names)
+            new_idea = st.text_input('Your new idea!', '', max_chars =250)
+            st.write("Your new date idea is: "+new_idea)
+            if st.button('🌺 Submit Idea 🌺'):
+                response = post_idea(category, category_ids, new_idea)
+                if response.status_code == 200:
+                    if response.content.decode("utf-8") == 'This idea is already in the database':
+                        st.write("Sorry this idea is already in the database. Anything else on your mind? 🤔")
+                    else:
+                        st.write("Thank you! 🎉 Someone will be happy to get your idea! ")
                 else:
-                    st.write("Thank you! 🎉 Someone will be happy to get your idea! ")
-            else:
-                st.write("Sorry something went wrong 😔")
+                    st.write("Sorry something went wrong 😔")
+        except: 
+            st.write("Sorry something went wrong 😔")

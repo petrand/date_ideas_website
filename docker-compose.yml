@@ -29,7 +29,8 @@ services:
     networks:
       - nginx-network
     restart: on-failure
-  
+    env_file:
+      - ./streamlit_app/streamlit_app.env
   dateideas-api:
     image: node:slim
     container_name: dateideas-api
