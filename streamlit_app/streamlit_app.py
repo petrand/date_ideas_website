@@ -46,32 +46,26 @@ with col2:
 
 with col1:
     if create_idea == "Get Idea":
-        try:
-            st.subheader("💕 Get a Date Idea")
-            category_names, category_description, category_ids = get_categories()
-            category = st.selectbox('Select preferred category:', category_names)
-            st.write("✨ " + category_description[category] + " ✨")
+        st.subheader("💕 Get a Date Idea")
+        category_names, category_description, category_ids = get_categories()
+        category = st.selectbox('Select preferred category:', category_names)
+        st.write("✨ " + category_description[category] + " ✨")
 
-            if st.button('🌸 Generate Idea 🌸'):
-                st.header('💌 Your date idea is: ')
-                st.markdown(f"<h3 style='text-align: center; color: pink;'>{get_idea(category, category_ids)}</h1>", unsafe_allow_html=True)
-        except:
-            st.write("Sorry something went wrong 😔")
+        if st.button('🌸 Generate Idea 🌸'):
+            st.header('💌 Your date idea is: ')
+            st.markdown(f"<h3 style='text-align: center; color: pink;'>{get_idea(category, category_ids)}</h1>", unsafe_allow_html=True)
     else:
-        try: 
-            st.subheader("🎠 Add a New Date Idea")
-            category_names, category_description, category_ids = get_categories()
-            category = st.selectbox('Select category to add to:', category_names)
-            new_idea = st.text_input('Your new idea!', '', max_chars =250)
-            st.write("Your new date idea is: "+new_idea)
-            if st.button('🌺 Submit Idea 🌺'):
-                response = post_idea(category, category_ids, new_idea)
-                if response.status_code == 200:
-                    if response.content.decode("utf-8") == 'This idea is already in the database':
-                        st.write("Sorry this idea is already in the database. Anything else on your mind? 🤔")
-                    else:
-                        st.write("Thank you! 🎉 Someone will be happy to get your idea! ")
+        st.subheader("🎠 Add a New Date Idea")
+        category_names, category_description, category_ids = get_categories()
+        category = st.selectbox('Select category to add to:', category_names)
+        new_idea = st.text_input('Your new idea!', '', max_chars =250)
+        st.write("Your new date idea is: "+new_idea)
+        if st.button('🌺 Submit Idea 🌺'):
+            response = post_idea(category, category_ids, new_idea)
+            if response.status_code == 200:
+                if response.content.decode("utf-8") == 'This idea is already in the database':
+                    st.write("Sorry this idea is already in the database. Anything else on your mind? 🤔")
                 else:
-                    st.write("Sorry something went wrong 😔")
-        except: 
-            st.write("Sorry something went wrong 😔")
+                    st.write("Thank you! 🎉 Someone will be happy to get your idea! ")
+            else:
+                st.write("Sorry something went wrong 😔")
